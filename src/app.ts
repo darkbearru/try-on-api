@@ -4,6 +4,8 @@ import express, { Express } from 'express';
 import { TYPES } from './types';
 import { ILoggerService } from './services/logger/logger.service.interface';
 import { IConfigService } from './services/config/config.service.interface';
+import 'reflect-metadata';
+
 
 @injectable()
 export class App {
