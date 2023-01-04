@@ -17,7 +17,6 @@ export class ConfigService implements IConfigService {
 			this.logger.error('[ConfigService] Не удалось прочитать файл .env или он отсутствует');
 		} else {
 			this.logger.error('[ConfigService] Конфигурация .env загружена');
-			this.config = result.parsed as DotenvParseOutput;
 		}
 		this.config = result.parsed as DotenvParseOutput;
 	}
