@@ -1,5 +1,6 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
+import { CustomRequest } from '../../types/custom';
 
 export interface IMiddleware {
-	execute: (req: Request, res: Response, next: NextFunction) => void;
+	execute: (req: CustomRequest, res: Response, next: NextFunction) => void;
 }
