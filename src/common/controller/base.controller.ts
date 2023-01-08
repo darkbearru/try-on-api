@@ -23,7 +23,7 @@ export abstract class BaseController implements IController {
 
 	public send<T>(res: Response, code: number, body: T, message: string): Response {
 		res.type('application/json');
-		return res.status(code).send({ body, message });
+		return res.status(code).send({ ...body, message });
 	}
 
 	public ok<T>(res: Response, body: T, message: string): Response {
