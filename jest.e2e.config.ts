@@ -4,7 +4,7 @@ const config: Config = {
 	verbose: true,
 	preset: 'ts-jest',
 	// rootDir: './tests',
-	testRegex: '.e2n-spec.ts$',
+	testRegex: '.e2e-spec.ts$',
 };
 
 export default config;
