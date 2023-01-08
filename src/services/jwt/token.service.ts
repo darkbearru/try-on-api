@@ -20,6 +20,7 @@ export class TokenService implements ITokenService {
 		this.refreshSecret = process.env.JWT_REFRESH_SECRET || 'REFRESH_SECRET';
 		this.refreshLifetime = process.env.JWT_REFRESH_LIFETIME || '30d';
 	}
+
 	check(token: string, secret: string): JwtPayload | string {
 		try {
 			return verify(token, secret);
