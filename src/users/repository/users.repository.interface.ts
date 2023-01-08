@@ -1,8 +1,8 @@
 import { User } from '../user.entity';
-import { UsersAndRoles } from '../users.roles';
+import { TUsersAndRoles } from '../users.roles';
 
 export interface IUsersRepository {
-	create: (user: User) => Promise<UsersAndRoles | null>;
-	find: (email: string) => Promise<UsersAndRoles | null>;
+	create: (user: User) => Promise<TUsersAndRoles | null>;
+	find: (email: string) => Promise<TUsersAndRoles | null>;
 	delete: (id: number) => Promise<boolean>;
 }

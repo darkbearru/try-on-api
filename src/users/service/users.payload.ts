@@ -1,5 +1,5 @@
 import { TUserRoles } from '../users.roles';
-import { TTokensList } from '../../services/jwt/token.service.interface';
+import { TTokensList } from '../../services/jwt/token.types';
 
 export type TUsersPayload = {
 	email: string;
