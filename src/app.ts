@@ -3,21 +3,23 @@ import { Server } from 'node:http';
 import express, { Express } from 'express';
 import { TYPES } from './types';
 import { ILoggerService } from './services/logger/logger.service.interface';
-import { IConfigService } from './services/config/config.service.interface';
 import 'reflect-metadata';
 import { UsersController } from './users/users.controller';
-
+import { IExceptionFilter } from './errors/exception.filter.interface';
+import { PrismaService } from './database/prisma.service';
+import cookieParser from 'cookie-parser';
 
 @injectable()
 export class App {
 	app: Express;
-	private port: number = 8900;
+	private port = 8900;
 	private server: Server;
 
 	constructor(
 		@inject(TYPES.ILoggerService) private logger: ILoggerService,
 		@inject(TYPES.IUsersController) private usersController: UsersController,
-		@inject(TYPES.IConfigService) private config: IConfigService,
+		@inject(TYPES.IExceptionFilter) private exceptionFilter: IExceptionFilter,
+		@inject(TYPES.PrismaService) private prismaService: PrismaService,
 	) {
 		this.app = express();
 	}
@@ -25,7 +27,10 @@ export class App {
 		this.useMiddlewares();
 		this.useRoutes();
 		this.useExceptionFilters();
-		this.port = this.config.get('PORT', this.port);
+
+		await this.prismaService.connect();
+
+		this.port = parseInt(process.env.PORT || String(this.port));
 		this.server = this.app.listen(this.port, () => {
 			this.logger.log(`[App] Сервер запущен на http://localhost:${this.port}/`);
 		});
@@ -39,10 +44,11 @@ export class App {
 	}
 
 	protected useMiddlewares() {
+		this.app.use(cookieParser());
 		this.app.use(express.json());
 	}
 
 	protected useExceptionFilters() {
-
+		this.app.use(this.exceptionFilter.catch.bind(this.exceptionFilter));
 	}
 }
