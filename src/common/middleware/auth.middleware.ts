@@ -1,23 +1,30 @@
 import { IMiddleware } from './middleware.interface';
-import { NextFunction, Request, Response } from 'express';
-import { verify } from 'jsonwebtoken';
+import { NextFunction, Response } from 'express';
+import { inject } from 'inversify';
+import { TYPES } from '../../types';
+import { ITokenService } from '../../services/jwt/token.service.interface';
+import { HttpError } from '../../errors/http-error';
+import { CustomRequest } from '../../types/custom';
+import { TUsersPayload } from '../../users/service/users.payload';
 
 export class AuthMiddleware implements IMiddleware {
-	constructor(private secret: string) {}
+	constructor(@inject(TYPES.ITokenService) private tokenService: ITokenService) {}
 
-	execute(req: Request, res: Response, next: NextFunction): void {
+	async execute(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {
 		if (req?.headers?.authorization) {
-			const token = req?.headers?.authorization.split(' ')[1];
-			verify(token, this.secret, (err, payload) => {
-				if (err) {
-					next();
-				} else if (payload) {
-					req.user = typeof payload !== 'string' ? payload.email : payload;
-					next();
-				}
-			});
+			const token = req.headers.authorization.split(' ')[1];
+			const payload = await this.tokenService.check(
+				token,
+				process.env.JWT_ACCESS_SECRET || 'SECRET',
+			);
+			if (payload) {
+				req.user = payload as TUsersPayload;
+				next();
+			} else {
+				next(new HttpError(403, 'Доступ запрещён', 'AuthMiddleware'));
+			}
 		} else {
-			next();
+			next(new HttpError(401, 'Требуется авторизация', 'AuthMiddleware'));
 		}
 	}
 }
