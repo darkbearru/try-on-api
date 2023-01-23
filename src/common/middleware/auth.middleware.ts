@@ -6,6 +6,7 @@ import { ITokenService } from '../../services/jwt/token.service.interface';
 import { HttpError } from '../../errors/http-error';
 import { CustomRequest } from '../../types/custom';
 import { TUsersPayload } from '../../users/service/users.payload';
+import { UsersMessages } from '../../users/users.messages';
 
 export class AuthMiddleware implements IMiddleware {
 	constructor(@inject(TYPES.ITokenService) private tokenService: ITokenService) {}
@@ -17,14 +18,14 @@ export class AuthMiddleware implements IMiddleware {
 				token,
 				process.env.JWT_ACCESS_SECRET || 'SECRET',
 			);
-			if (payload) {
+			if (payload && typeof payload === 'object') {
 				req.user = payload as TUsersPayload;
 				next();
 			} else {
-				next(new HttpError(403, 'Доступ запрещён', 'AuthMiddleware'));
+				next(new HttpError(403, UsersMessages.AuthForbidden, 'AuthMiddleware'));
 			}
 		} else {
-			next(new HttpError(401, 'Требуется авторизация', 'AuthMiddleware'));
+			next(new HttpError(401, UsersMessages.NeedAuth, 'AuthMiddleware'));
 		}
 	}
 }
