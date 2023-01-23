@@ -21,11 +21,11 @@ export class TokenService implements ITokenService {
 		this.refreshLifetime = process.env.JWT_REFRESH_LIFETIME || '30d';
 	}
 
-	check(token: string, secret: string): JwtPayload | string {
+	check(token: string, secret: string): JwtPayload | string | false {
 		try {
 			return verify(token, secret);
 		} catch (e) {
-			return '';
+			return false;
 		}
 	}
 
@@ -64,7 +64,7 @@ export class TokenService implements ITokenService {
 
 	async refresh(token: string, res: Response): Promise<TRefreshResponse | null> {
 		const data = await this.check(token, process.env.JWT_REFRESH_SECRET || 'REFRESH_SECRET');
-		if (typeof data !== 'string') {
+		if (typeof data !== 'string' && data !== false) {
 			const { exp, iat, ...userData } = data;
 			const payload: TUsersPayload = userData as TUsersPayload;
 			const jwt = await this.generate(payload);

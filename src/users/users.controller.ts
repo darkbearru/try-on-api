@@ -13,6 +13,7 @@ import { AuthMiddleware } from '../common/middleware/auth.middleware';
 import { ITokenService } from '../services/jwt/token.service.interface';
 import { CustomRequest } from '../types/custom';
 import { JSONCookies } from 'cookie-parser';
+import { UsersMessages } from './users.messages';
 
 @injectable()
 export class UsersController extends BaseController implements IUsersController {
@@ -70,11 +71,11 @@ export class UsersController extends BaseController implements IUsersController 
 		this.logger.log('[UserController] Login', body);
 		const result = await this.usersService.validate(body);
 		if (!result) {
-			return next(new HttpError(401, 'Ошибка авторизации', 'Login'));
+			return next(new HttpError(401, UsersMessages.AuthError, 'Login'));
 		}
 		res = this.tokenService.save(res, result.jwt.refresh);
 		const { jwt, ...userData } = result;
-		this.ok(res, { ...userData, jwt: jwt.access }, 'Авторизация успешна');
+		this.ok(res, { ...userData, jwt: jwt.access }, UsersMessages.AuthSuccess);
 	}
 
 	async register(
@@ -85,11 +86,11 @@ export class UsersController extends BaseController implements IUsersController 
 		this.logger.log('[UserController] Register', body);
 		const result = await this.usersService.create(body);
 		if (!result) {
-			return next(new HttpError(422, 'Такой пользователь уже существует', 'UsersController'));
+			return next(new HttpError(422, UsersMessages.UserExists, 'UsersController'));
 		}
 		this.logger.log(`[UserController] User «${result.email}» registered`);
 		const { id, name, email, role } = result;
-		this.ok(res, { id, email, name, role: role?.name }, 'Пользователь зарегистрирован');
+		this.ok(res, { id, email, name, role: role?.name }, UsersMessages.Registered);
 	}
 
 	logout(req: Request, res: Response, next: NextFunction): void {
@@ -102,24 +103,24 @@ export class UsersController extends BaseController implements IUsersController 
 		const cookies = JSONCookies(req.cookies);
 		const token = cookies?.rf_token?.toString();
 		if (!token) {
-			return next(new HttpError(401, 'Требуется авторизация', 'UsersController'));
+			return next(new HttpError(401, UsersMessages.NeedAuth, 'UsersController'));
 		}
 		const result = await this.tokenService.refresh(token, res);
 		if (result) {
 			const { res, ...userData } = result;
-			this.ok(res, userData, 'Обновление токена успешно');
+			this.ok(res, userData, UsersMessages.TokenRefreshSuccess);
 			return;
 		}
-		next(new HttpError(401, 'Требуется авторизация', 'UsersController'));
+		next(new HttpError(401, UsersMessages.NeedAuth, 'UsersController'));
 	}
 
 	async delete({ params }: Request, res: Response, next: NextFunction): Promise<void> {
 		this.logger.log('[UserController] Delete', params.id);
 		const result = await this.usersService.delete(parseInt(params.id));
 		if (!result) {
-			return next(new HttpError(404, 'Пользователь не найден', 'UsersController'));
+			return next(new HttpError(404, UsersMessages.UserNotFound, 'UsersController'));
 		}
-		this.ok(res, {}, `Пользователь #${params.id} успешно удалён`);
+		this.ok(res, {}, UsersMessages.UserDeleted.replace('%s', params.id));
 	}
 
 	async info(req: CustomRequest, res: Response, next: NextFunction): Promise<void> {

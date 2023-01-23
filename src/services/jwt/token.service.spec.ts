@@ -6,6 +6,12 @@ import { TokenService } from './token.service';
 import { TUsersPayload } from '../../users/service/users.payload';
 import { User } from '../../users/user.entity';
 
+enum Example {
+	token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiQWxleGV5IiwiZW1haWwiOiJhLmFicmFtZW5rb0BjaGl0YS5ydSIsImlkIjo2LCJyb2xlIjoibWFuYWdlciIsImlhdCI6MTY3MzE1MzM2MCwiZXhwIjoxNjc3MDQxMzYwfQ.8PHC94gPQ8L0Tup6A3pGupvjV-2j8pMw56ZBB41bZmA',
+	password = 'ruqRum7-raqzo95-cogbap',
+	secret = 'REFRESH_SECRET',
+}
+
 const container = new Container();
 let tokenService: TokenService;
 
@@ -16,18 +22,12 @@ beforeAll(() => {
 
 describe('Token Service', () => {
 	it('Check [Success]', async () => {
-		const result = tokenService.check(
-			'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiQWxleGV5IiwiZW1haWwiOiJhLmFicmFtZW5rb0BjaGl0YS5ydSIsImlkIjo2LCJyb2xlIjoibWFuYWdlciIsImlhdCI6MTY3MzE1MzM2MCwiZXhwIjoxNjc3MDQxMzYwfQ.8PHC94gPQ8L0Tup6A3pGupvjV-2j8pMw56ZBB41bZmA',
-			'ruqRum7-raqzo95-cogbap',
-		);
-		expect(result).not.toBe('');
+		const result = tokenService.check(Example.token, Example.password);
+		expect(result).not.toBe(false);
 	});
 	it('Check [Error]', async () => {
-		const result = tokenService.check(
-			'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiQWxleGV5IiwiZW1haWwiOiJhLmFicmFtZW5rb0BjaGl0YS5ydSIsImlkIjo2LCJyb2xlIjoibWFuYWdlciIsImlhdCI6MTY3MzE1MzM2MCwiZXhwIjoxNjc3MDQxMzYwfQ.8PHC94gPQ8L0Tup6A3pGupvjV-2j8pMw56ZBB41bZmA',
-			'REFRESH_SECRET',
-		);
-		expect(result).toBe('');
+		const result = tokenService.check(Example.token, Example.secret);
+		expect(result).toBe(false);
 	});
 	it('Make [Success]', async () => {
 		const result = await tokenService.make(
@@ -37,7 +37,7 @@ describe('Token Service', () => {
 				email: 'test@test.ru',
 				role: 'manager',
 			},
-			'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiQWxleGV5IiwiZW1haWwiOiJhLmFicmFtZW5rb0BjaGl0YS5ydSIsImlkIjo2LCJyb2xlIjoibWFuYWdlciIsImlhdCI6MTY3MzE1MzM2MCwiZXhwIjoxNjc3MDQxMzYwfQ.8PHC94gPQ8L0Tup6A3pGupvjV-2j8pMw56ZBB41bZmA',
+			Example.token,
 			'45d',
 		);
 		expect(result).not.toBe('');
