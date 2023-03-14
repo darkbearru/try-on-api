@@ -7,13 +7,13 @@ import { TUsersPayload } from '../../users/service/users.payload';
 import { User } from '../../users/user.entity';
 
 enum Example {
-	token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiQWxleGV5IiwiZW1haWwiOiJhLmFicmFtZW5rb0BjaGl0YS5ydSIsImlkIjo2LCJyb2xlIjoibWFuYWdlciIsImlhdCI6MTY3MzE1MzM2MCwiZXhwIjoxNjc3MDQxMzYwfQ.8PHC94gPQ8L0Tup6A3pGupvjV-2j8pMw56ZBB41bZmA',
 	password = 'ruqRum7-raqzo95-cogbap',
 	secret = 'REFRESH_SECRET',
 }
 
 const container = new Container();
 let tokenService: TokenService;
+let exampleToken: string;
 
 beforeAll(() => {
 	container.bind<ITokenService>(TYPES.ITokenService).to(TokenService);
@@ -21,26 +21,27 @@ beforeAll(() => {
 });
 
 describe('Token Service', () => {
-	it('Check [Success]', async () => {
-		const result = tokenService.check(Example.token, Example.password);
-		expect(result).not.toBe(false);
-	});
-	it('Check [Error]', async () => {
-		const result = tokenService.check(Example.token, Example.secret);
-		expect(result).toBe(false);
-	});
 	it('Make [Success]', async () => {
-		const result = await tokenService.make(
+		exampleToken = await tokenService.make(
 			{
 				id: 25,
 				name: 'Alexey',
 				email: 'test@test.ru',
 				role: 'manager',
 			},
-			Example.token,
+			Example.secret,
 			'45d',
 		);
-		expect(result).not.toBe('');
+		expect(exampleToken).not.toBe('');
+	});
+
+	it('Check [Success]', async () => {
+		const result = tokenService.check(exampleToken, Example.secret);
+		expect(result).not.toBe(false);
+	});
+	it('Check [Error]', async () => {
+		const result = tokenService.check(exampleToken, Example.password);
+		expect(result).toBe(false);
 	});
 	it('Generate [By payload, Success]', async () => {
 		const user: TUsersPayload = {

@@ -5,4 +5,5 @@ export interface IGoodsController {
 	add: (req: Request, res: Response, next: NextFunction) => void;
 	delete: (req: Request, res: Response, next: NextFunction) => void;
 	update: (req: Request, res: Response, next: NextFunction) => void;
+	updateCount: (req: Request, res: Response, next: NextFunction) => void;
 }
