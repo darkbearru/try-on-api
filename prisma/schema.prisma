@@ -11,18 +11,38 @@ datasource db {
 }
 
 model Users {
-	id Int @id @default(autoincrement())
-	name String?
-	email String
-	password String
-	role UsersRole @relation(fields: [roleId], references: [id])
-	roleId Int
-	createdAt DateTime @default(now())
-	changedAt DateTime @default(now())
+	id        Int       @id @default(autoincrement())
+	name      String?
+	email     String
+	password  String
+	role      UsersRole @relation(fields: [roleId], references: [id])
+	roleId    Int
+	createdAt DateTime  @default(now())
+	changedAt DateTime  @default(now())
 }
 
 model UsersRole {
-	id Int @id @default(autoincrement())
+	id   Int     @id @default(autoincrement())
 	name String
 	user Users[]
+}
+
+model Goods {
+	id         Int          @id @default(autoincrement())
+	name       String
+	price      Decimal
+	count      Int          @default(0)
+	photo      String?
+	code       String
+	options    Json?
+	categories Categories[]
+
+	@@index([code])
+}
+
+model Categories {
+	id    Int     @id @default(autoincrement())
+	name  String
+	slug  String  @unique
+	goods Goods[]
 }
